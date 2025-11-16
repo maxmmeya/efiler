@@ -62,9 +62,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/signup").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/forms/public/**").permitAll()
+
+                        // Authenticated endpoints
+                        .requestMatchers("/auth/change-password").authenticated()
+                        .requestMatchers("/notifications/**").authenticated()
 
                         // External institutional user endpoints
                         .requestMatchers("/submissions/**").hasAnyRole("EXTERNAL_INSTITUTIONAL", "BACK_OFFICE", "ADMINISTRATOR")

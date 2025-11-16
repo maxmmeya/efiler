@@ -2,6 +2,7 @@ package com.efiling.controller;
 
 import com.efiling.domain.entity.Role;
 import com.efiling.domain.entity.User;
+import com.efiling.dto.auth.ChangePasswordRequest;
 import com.efiling.dto.auth.JwtResponse;
 import com.efiling.dto.auth.LoginRequest;
 import com.efiling.dto.auth.SignupRequest;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -113,5 +115,33 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok("User registered successfully");
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            User user = userRepository.findById(userPrincipal.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Verify current password
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                return ResponseEntity.badRequest().body("Current password is incorrect");
+            }
+
+            // Verify new password matches confirmation
+            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body("New passwords do not match");
+            }
+
+            // Update password
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to change password: " + e.getMessage());
+        }
     }
 }

@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { authService } from "@/lib/auth";
-import { useRouter } from "next/navigation";
+import { AppLayout } from "@/components/app-layout";
 import { FileText, Upload, CheckCircle, XCircle, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default function PortalDashboard() {
-  const router = useRouter();
   const [stats, setStats] = useState({
     totalSubmissions: 0,
     pending: 0,
@@ -16,18 +14,10 @@ export default function PortalDashboard() {
     rejected: 0,
   });
   const [submissions, setSubmissions] = useState<any[]>([]);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-
-    const currentUser = authService.getUser();
-    setUser(currentUser);
     loadSubmissions();
-  }, [router]);
+  }, []);
 
   const loadSubmissions = async () => {
     try {
@@ -61,28 +51,7 @@ export default function PortalDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex">
-              <div className="flex flex-shrink-0 items-center">
-                <h1 className="text-xl font-bold text-primary">E-Filing Portal</h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.username}</span>
-              <button
-                onClick={() => authService.logout()}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <AppLayout>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
@@ -214,6 +183,6 @@ export default function PortalDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

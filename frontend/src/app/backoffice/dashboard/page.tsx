@@ -2,31 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { authService } from "@/lib/auth";
-import { useRouter } from "next/navigation";
-import { FileText, CheckCircle, XCircle, Clock, FileCheck } from "lucide-react";
+import { AppLayout } from "@/components/app-layout";
+import { CheckCircle, XCircle, Clock, FileCheck } from "lucide-react";
 import Link from "next/link";
 
 export default function BackOfficeDashboard() {
-  const router = useRouter();
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-
-    const currentUser = authService.getUser();
-    if (!currentUser?.roles.includes('ROLE_BACK_OFFICE') && !currentUser?.roles.includes('ROLE_ADMINISTRATOR')) {
-      router.push('/portal/dashboard');
-      return;
-    }
-
-    setUser(currentUser);
     loadPendingApprovals();
-  }, [router]);
+  }, []);
 
   const loadPendingApprovals = async () => {
     try {
@@ -50,54 +35,7 @@ export default function BackOfficeDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex">
-              <div className="flex flex-shrink-0 items-center">
-                <h1 className="text-xl font-bold text-primary">Back Office</h1>
-              </div>
-              <div className="ml-6 flex space-x-4">
-                <Link
-                  href="/backoffice/dashboard"
-                  className="inline-flex items-center border-b-2 border-primary px-1 pt-1 text-sm font-medium text-gray-900"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/backoffice/approvals"
-                  className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >
-                  Approvals
-                </Link>
-                <Link
-                  href="/backoffice/signatures"
-                  className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >
-                  Signatures
-                </Link>
-                <Link
-                  href="/backoffice/share-document"
-                  className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >
-                  Share Documents
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.username}</span>
-              <button
-                onClick={() => authService.logout()}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+    <AppLayout>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900">Back Office Dashboard</h2>
@@ -214,6 +152,6 @@ export default function BackOfficeDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }
