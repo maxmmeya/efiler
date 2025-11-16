@@ -1,0 +1,117 @@
+package com.efiling.controller;
+
+import com.efiling.domain.entity.Role;
+import com.efiling.domain.entity.User;
+import com.efiling.dto.auth.JwtResponse;
+import com.efiling.dto.auth.LoginRequest;
+import com.efiling.dto.auth.SignupRequest;
+import com.efiling.repository.RoleRepository;
+import com.efiling.repository.UserRepository;
+import com.efiling.security.JwtTokenProvider;
+import com.efiling.security.UserPrincipal;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@RestController
+@RequestMapping("/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider tokenProvider;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String accessToken = tokenProvider.generateToken(authentication);
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+
+        List<String> roles = userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(auth -> auth.startsWith("ROLE_"))
+                .toList();
+
+        List<String> permissions = userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(auth -> !auth.startsWith("ROLE_"))
+                .toList();
+
+        JwtResponse response = JwtResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .id(userPrincipal.getId())
+                .username(userPrincipal.getUsername())
+                .email(userPrincipal.getEmail())
+                .roles(roles)
+                .permissions(permissions)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+
+        if (userRepository.existsByEmail(signupRequest.getEmail())) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+
+        // Create user
+        User user = User.builder()
+                .username(signupRequest.getUsername())
+                .email(signupRequest.getEmail())
+                .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .firstName(signupRequest.getFirstName())
+                .lastName(signupRequest.getLastName())
+                .phoneNumber(signupRequest.getPhoneNumber())
+                .institutionName(signupRequest.getInstitutionName())
+                .institutionType(signupRequest.getInstitutionType())
+                .userType(signupRequest.getUserType() != null ? signupRequest.getUserType() : User.UserType.EXTERNAL_INSTITUTIONAL)
+                .isActive(true)
+                .emailVerified(false)
+                .build();
+
+        // Assign default role
+        Set<Role> roles = new HashSet<>();
+        String roleName = switch (user.getUserType()) {
+            case BACK_OFFICE -> "BACK_OFFICE_USER";
+            case ADMINISTRATOR -> "ADMINISTRATOR";
+            default -> "EXTERNAL_USER";
+        };
+
+        roleRepository.findByName(roleName).ifPresent(roles::add);
+        user.setRoles(roles);
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok("User registered successfully");
+    }
+}
