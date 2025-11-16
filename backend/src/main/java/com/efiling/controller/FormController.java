@@ -84,4 +84,11 @@ public class FormController {
     public ResponseEntity<FormSubmission> getSubmission(@PathVariable Long id) {
         return ResponseEntity.ok(formService.getSubmission(id));
     }
+
+    @GetMapping("/submissions/institutional")
+    public ResponseEntity<List<FormSubmission>> getInstitutionalSubmissions(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<FormSubmission> submissions = formService.getInstitutionalSubmissions(userPrincipal.getId());
+        return ResponseEntity.ok(submissions);
+    }
 }

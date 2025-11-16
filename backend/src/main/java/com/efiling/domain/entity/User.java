@@ -48,6 +48,10 @@ public class User {
     @Column(name = "institution_type")
     private String institutionType;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "institution_id")
+    private Institution institution;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false)
     private UserType userType;

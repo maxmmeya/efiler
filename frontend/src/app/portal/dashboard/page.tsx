@@ -132,7 +132,7 @@ export default function PortalDashboard() {
         </div>
 
         {/* Actions */}
-        <div className="mb-8 flex gap-4">
+        <div className="mb-8 flex flex-wrap gap-4">
           <Link
             href="/portal/submit"
             className="inline-flex items-center rounded-md bg-primary px-6 py-3 text-white hover:bg-primary/90"
@@ -146,6 +146,13 @@ export default function PortalDashboard() {
           >
             <FileText className="mr-2 h-5 w-5" />
             My Documents
+          </Link>
+          <Link
+            href="/portal/institutional-documents"
+            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-6 py-3 text-gray-700 hover:bg-gray-50"
+          >
+            <FileText className="mr-2 h-5 w-5" />
+            Institutional Documents
           </Link>
         </div>
 

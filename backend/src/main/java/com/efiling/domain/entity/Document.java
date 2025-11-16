@@ -65,6 +65,14 @@ public class Document {
     @Builder.Default
     private List<DigitalSignature> signatures = new ArrayList<>();
 
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<DocumentShare> shares = new ArrayList<>();
+
+    @Column(name = "visible_to_institution")
+    @Builder.Default
+    private Boolean visibleToInstitution = true;
+
     @Column(columnDefinition = "TEXT")
     private String metadata;
 

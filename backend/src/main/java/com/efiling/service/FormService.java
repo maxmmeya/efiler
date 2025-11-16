@@ -5,6 +5,7 @@ import com.efiling.domain.entity.FormSubmission;
 import com.efiling.domain.entity.User;
 import com.efiling.repository.FormRepository;
 import com.efiling.repository.FormSubmissionRepository;
+import com.efiling.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class FormService {
 
     private final FormRepository formRepository;
     private final FormSubmissionRepository formSubmissionRepository;
+    private final UserRepository userRepository;
     private final ApprovalService approvalService;
     private final NotificationService notificationService;
 
@@ -104,6 +106,17 @@ public class FormService {
 
     public List<FormSubmission> getUserSubmissions(User user) {
         return formSubmissionRepository.findBySubmittedBy(user);
+    }
+
+    public List<FormSubmission> getInstitutionalSubmissions(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getInstitution() == null) {
+            return List.of();
+        }
+
+        return formSubmissionRepository.findAccessibleSubmissionsByUser(user, user.getInstitution());
     }
 
     private String generateSubmissionNumber() {

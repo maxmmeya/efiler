@@ -50,6 +50,10 @@ public class FormSubmission {
     @OneToOne(mappedBy = "formSubmission", cascade = CascadeType.ALL)
     private Approval approval;
 
+    @Column(name = "visible_to_institution")
+    @Builder.Default
+    private Boolean visibleToInstitution = true;
+
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
