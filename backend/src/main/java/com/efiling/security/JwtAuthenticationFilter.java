@@ -47,6 +47,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        // Skip JWT authentication for public endpoints
+        return path.startsWith("/auth/login") ||
+               path.startsWith("/auth/signup") ||
+               path.startsWith("/public/") ||
+               (path.startsWith("/forms/public/") && "GET".equals(request.getMethod()));
+    }
+
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
