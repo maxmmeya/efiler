@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { authService } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { AppLayout } from "@/components/app-layout";
 import { DocumentUpload } from "@/components/document-upload";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -15,13 +15,8 @@ export default function SubmitPage() {
   const [formData, setFormData] = useState<any>({});
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-
     loadForms();
-  }, [router]);
+  }, []);
 
   const loadForms = async () => {
     try {
@@ -53,18 +48,8 @@ export default function SubmitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link href="/portal/dashboard" className="text-xl font-bold text-primary">
-              E-Filing Portal
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <AppLayout>
+      <div className="p-6">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900">New Submission</h2>
           <p className="mt-1 text-sm text-gray-600">
@@ -168,6 +153,6 @@ export default function SubmitPage() {
           </form>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -2,28 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { authService } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { AppLayout } from "@/components/app-layout";
 import { FileText, Users, Download } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function InstitutionalDocumentsPage() {
   const router = useRouter();
   const [documents, setDocuments] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"documents" | "submissions">("documents");
-  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-
-    const currentUser = authService.getUser();
-    setUser(currentUser);
     loadInstitutionalData();
-  }, [router]);
+  }, []);
 
   const loadInstitutionalData = async () => {
     try {
@@ -36,6 +30,9 @@ export default function InstitutionalDocumentsPage() {
       setSubmissions(subsResponse.data);
     } catch (error) {
       console.error('Failed to load institutional data', error);
+      toast.error('Failed to load institutional data');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,8 +49,10 @@ export default function InstitutionalDocumentsPage() {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      toast.success('Document downloaded successfully');
     } catch (error) {
       console.error('Failed to download document', error);
+      toast.error('Failed to download document');
     }
   };
 
@@ -73,29 +72,8 @@ export default function InstitutionalDocumentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex items-center">
-              <Link href="/portal/dashboard" className="text-xl font-bold text-primary">
-                E-Filing Portal
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {user?.username}</span>
-              <button
-                onClick={() => authService.logout()}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <AppLayout>
+      <div className="p-6">
         <div className="mb-8">
           <div className="flex items-center space-x-3">
             <Users className="h-8 w-8 text-primary" />
@@ -277,6 +255,6 @@ export default function InstitutionalDocumentsPage() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }
