@@ -33,5 +33,7 @@ public class SignupRequest {
 
     private String institutionType;
 
+    private Long institutionId;
+
     private User.UserType userType;
 }

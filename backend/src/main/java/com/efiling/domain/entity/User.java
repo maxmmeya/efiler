@@ -73,6 +73,10 @@ public class User {
     @Builder.Default
     private Boolean emailVerified = false;
 
+    @Column(name = "must_change_password")
+    @Builder.Default
+    private Boolean mustChangePassword = false;
+
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 

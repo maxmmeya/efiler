@@ -26,6 +26,7 @@ export interface AuthResponse {
   email: string;
   roles: string[];
   permissions: string[];
+  mustChangePassword?: boolean;
 }
 
 export const authService = {

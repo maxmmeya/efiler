@@ -24,6 +24,7 @@ public class UserPrincipal implements UserDetails {
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
     private boolean enabled;
+    private boolean mustChangePassword;
 
     public static UserPrincipal create(User user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
@@ -44,7 +45,8 @@ public class UserPrincipal implements UserDetails {
                 user.getEmail(),
                 user.getPassword(),
                 authorities,
-                user.getIsActive()
+                user.getIsActive(),
+                user.getMustChangePassword() != null ? user.getMustChangePassword() : false
         );
     }
 

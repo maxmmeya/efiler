@@ -10,6 +10,7 @@ import com.efiling.repository.RoleRepository;
 import com.efiling.repository.UserRepository;
 import com.efiling.security.JwtTokenProvider;
 import com.efiling.security.UserPrincipal;
+import com.efiling.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -71,6 +73,7 @@ public class AuthController {
                 .email(userPrincipal.getEmail())
                 .roles(roles)
                 .permissions(permissions)
+                .mustChangePassword(userPrincipal.isMustChangePassword())
                 .build();
 
         return ResponseEntity.ok(response);
@@ -78,43 +81,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody SignupRequest signupRequest) {
-        if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity.badRequest().body("Username already exists");
+        try {
+            userService.createUser(signupRequest);
+            return ResponseEntity.ok("User registered successfully. Login credentials have been sent to the email address provided.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-
-        // Create user
-        User user = User.builder()
-                .username(signupRequest.getUsername())
-                .email(signupRequest.getEmail())
-                .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .firstName(signupRequest.getFirstName())
-                .lastName(signupRequest.getLastName())
-                .phoneNumber(signupRequest.getPhoneNumber())
-                .institutionName(signupRequest.getInstitutionName())
-                .institutionType(signupRequest.getInstitutionType())
-                .userType(signupRequest.getUserType() != null ? signupRequest.getUserType() : User.UserType.EXTERNAL_INSTITUTIONAL)
-                .isActive(true)
-                .emailVerified(false)
-                .build();
-
-        // Assign default role
-        Set<Role> roles = new HashSet<>();
-        String roleName = switch (user.getUserType()) {
-            case BACK_OFFICE -> "BACK_OFFICE_USER";
-            case ADMINISTRATOR -> "ADMINISTRATOR";
-            default -> "EXTERNAL_USER";
-        };
-
-        roleRepository.findByName(roleName).ifPresent(roles::add);
-        user.setRoles(roles);
-
-        userRepository.save(user);
-
-        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/change-password")
@@ -125,9 +97,12 @@ public class AuthController {
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Verify current password
-            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-                return ResponseEntity.badRequest().body("Current password is incorrect");
+            // If user must change password (first time login), skip current password verification
+            if (user.getMustChangePassword() == null || !user.getMustChangePassword()) {
+                // Verify current password only if not forced password change
+                if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                    return ResponseEntity.badRequest().body("Current password is incorrect");
+                }
             }
 
             // Verify new password matches confirmation
@@ -135,9 +110,8 @@ public class AuthController {
                 return ResponseEntity.badRequest().body("New passwords do not match");
             }
 
-            // Update password
-            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-            userRepository.save(user);
+            // Update password and clear mustChangePassword flag
+            userService.changePassword(user, request.getNewPassword());
 
             return ResponseEntity.ok("Password changed successfully");
         } catch (Exception e) {

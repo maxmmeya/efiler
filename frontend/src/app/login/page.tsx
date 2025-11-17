@@ -8,6 +8,7 @@ import { z } from "zod";
 import { authService } from "@/lib/auth";
 import { toast } from "sonner";
 import Link from "next/link";
+import { ForcedPasswordChange } from "@/components/forced-password-change";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -19,6 +20,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showForcedPasswordChange, setShowForcedPasswordChange] = useState(false);
 
   const {
     register,
@@ -32,6 +34,15 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const response = await authService.login(data);
+
+      // Check if user must change password
+      if (response.mustChangePassword) {
+        toast.info("Please change your password to continue");
+        setShowForcedPasswordChange(true);
+        setIsLoading(false);
+        return;
+      }
+
       toast.success("Login successful!");
 
       // Redirect based on user role
@@ -46,6 +57,23 @@ export default function LoginPage() {
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePasswordChangeSuccess = () => {
+    setShowForcedPasswordChange(false);
+    toast.success("Password changed successfully! Redirecting...");
+
+    // Get updated user and redirect
+    const user = authService.getUser();
+    if (user) {
+      if (user.roles.includes('ROLE_ADMINISTRATOR')) {
+        router.push('/admin/dashboard');
+      } else if (user.roles.includes('ROLE_BACK_OFFICE')) {
+        router.push('/backoffice/dashboard');
+      } else {
+        router.push('/portal/dashboard');
+      }
     }
   };
 
@@ -102,6 +130,10 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
+
+      {showForcedPasswordChange && (
+        <ForcedPasswordChange onSuccess={handlePasswordChangeSuccess} />
+      )}
     </div>
   );
 }
