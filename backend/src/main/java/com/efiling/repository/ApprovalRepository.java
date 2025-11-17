@@ -15,10 +15,12 @@ public interface ApprovalRepository extends JpaRepository<Approval, Long> {
     Optional<Approval> findByFormSubmission(FormSubmission formSubmission);
     List<Approval> findByStatus(Approval.ApprovalStatus status);
 
-    @Query("SELECT a FROM Approval a JOIN a.workflow w JOIN w.steps s " +
+    @Query("SELECT DISTINCT a FROM Approval a " +
+           "JOIN a.workflow w " +
+           "JOIN w.steps s " +
            "WHERE a.currentStepOrder = s.stepOrder " +
-           "AND (s.approverUsers IN (SELECT u FROM User u WHERE u.id = :userId) " +
-           "OR s.approverRoles IN (SELECT r FROM User u JOIN u.roles r WHERE u.id = :userId)) " +
-           "AND a.status = 'IN_PROGRESS'")
+           "AND a.status = 'IN_PROGRESS' " +
+           "AND (EXISTS (SELECT 1 FROM User u WHERE u.id = :userId AND u MEMBER OF s.approverUsers) " +
+           "OR EXISTS (SELECT 1 FROM User u JOIN u.roles r WHERE u.id = :userId AND r MEMBER OF s.approverRoles))")
     List<Approval> findPendingApprovalsByUserId(@Param("userId") Long userId);
 }
