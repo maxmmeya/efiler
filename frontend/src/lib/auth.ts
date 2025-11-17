@@ -64,11 +64,11 @@ export const authService = {
 
   hasRole(role: string): boolean {
     const user = this.getUser();
-    return user?.roles.includes(role) || false;
+    return user?.roles?.includes(role) || false;
   },
 
   hasPermission(permission: string): boolean {
     const user = this.getUser();
-    return user?.permissions.includes(permission) || false;
+    return user?.permissions?.includes(permission) || false;
   },
 };
