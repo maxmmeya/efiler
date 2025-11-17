@@ -42,6 +42,10 @@ public class Document {
     @Column(name = "document_type")
     private String documentType;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_type_id")
+    private DocumentType documentTypeEntity;
+
     @Column(name = "document_number", unique = true)
     private String documentNumber;
 
@@ -68,6 +72,10 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<DocumentShare> shares = new ArrayList<>();
+
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<DocumentChecklistResponse> checklistResponses = new ArrayList<>();
 
     @Column(name = "visible_to_institution")
     @Builder.Default

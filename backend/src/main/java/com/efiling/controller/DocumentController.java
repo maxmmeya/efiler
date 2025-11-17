@@ -1,9 +1,11 @@
 package com.efiling.controller;
 
 import com.efiling.domain.entity.Document;
+import com.efiling.domain.entity.DocumentChecklistResponse;
 import com.efiling.security.UserPrincipal;
 import com.efiling.service.DocumentService;
 import com.efiling.service.DocumentStorageService;
+import com.efiling.service.DocumentTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -24,6 +26,7 @@ public class DocumentController {
 
     private final DocumentService documentService;
     private final DocumentStorageService storageService;
+    private final DocumentTypeService documentTypeService;
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDocument(
@@ -86,6 +89,16 @@ public class DocumentController {
             return ResponseEntity.ok("Document deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/checklist-responses")
+    public ResponseEntity<List<DocumentChecklistResponse>> getChecklistResponses(@PathVariable Long id) {
+        try {
+            List<DocumentChecklistResponse> responses = documentTypeService.getChecklistResponses(id);
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

@@ -15,6 +15,7 @@ import {
   UserCog,
   Settings,
   GitBranch,
+  FolderTree,
 } from "lucide-react";
 
 interface MenuItem {
@@ -64,6 +65,7 @@ export function Sidebar() {
         { name: 'Pending Approvals', href: '/backoffice/approvals', icon: CheckCircle },
         { name: 'Digital Signatures', href: '/backoffice/signatures', icon: FileCheck },
         { name: 'Share Documents', href: '/backoffice/share-document', icon: Share2 },
+        { name: 'Document Types', href: '/backoffice/document-types', icon: FolderTree },
       );
     }
 
@@ -73,6 +75,7 @@ export function Sidebar() {
         { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'User Management', href: '/admin/users', icon: UserCog },
         { name: 'Institutions', href: '/admin/institutions', icon: Building2 },
+        { name: 'Document Types', href: '/backoffice/document-types', icon: FolderTree },
         { name: 'Forms Management', href: '/admin/forms', icon: FileText },
         { name: 'Workflows', href: '/admin/workflows', icon: GitBranch },
         { name: 'System Settings', href: '/admin/settings', icon: Settings },
