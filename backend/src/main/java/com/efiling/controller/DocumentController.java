@@ -69,6 +69,12 @@ public class DocumentController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<Document>> getAllDocuments() {
+        List<Document> documents = documentService.getAllDocuments();
+        return ResponseEntity.ok(documents);
+    }
+
     @GetMapping("/my-documents")
     public ResponseEntity<List<Document>> getMyDocuments(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         List<Document> documents = documentService.getUserDocuments(
