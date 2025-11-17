@@ -64,7 +64,10 @@ public class ApprovalController {
             // Find the pending approval for this document
             List<Approval> approvals = approvalService.getPendingApprovalsForUser(userPrincipal.getId());
             Approval approval = approvals.stream()
-                    .filter(a -> a.getDocument().getId().equals(documentId))
+                    .filter(a -> a.getFormSubmission() != null &&
+                                 a.getFormSubmission().getAttachedDocuments() != null &&
+                                 a.getFormSubmission().getAttachedDocuments().stream()
+                                     .anyMatch(doc -> doc.getId().equals(documentId)))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("No pending approval found for this document"));
 
@@ -93,7 +96,10 @@ public class ApprovalController {
             // Find the pending approval for this document
             List<Approval> approvals = approvalService.getPendingApprovalsForUser(userPrincipal.getId());
             Approval approval = approvals.stream()
-                    .filter(a -> a.getDocument().getId().equals(documentId))
+                    .filter(a -> a.getFormSubmission() != null &&
+                                 a.getFormSubmission().getAttachedDocuments() != null &&
+                                 a.getFormSubmission().getAttachedDocuments().stream()
+                                     .anyMatch(doc -> doc.getId().equals(documentId)))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("No pending approval found for this document"));
 

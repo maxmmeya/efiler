@@ -133,7 +133,7 @@ public class DigitalSignatureService {
         File signedFile = storageService.getFile(digitalSignature.getSignedDocumentPath());
         File originalFile = storageService.getFile(digitalSignature.getDocument().getFilePath());
 
-        SignatureVerification.VerificationResult result;
+        SignatureVerification.VerificationResult result = SignatureVerification.VerificationResult.VERIFICATION_FAILED;
         boolean certificateValid = false;
         boolean signatureIntact = false;
         boolean documentUnmodified = false;
@@ -184,9 +184,8 @@ public class DigitalSignatureService {
                 if (certificateValid && signatureIntact && documentUnmodified && trustChainValid) {
                     result = SignatureVerification.VerificationResult.VALID;
                     details.append("All verification checks passed.");
-                } else if (result == null) {
-                    result = SignatureVerification.VerificationResult.VERIFICATION_FAILED;
                 }
+                // If result wasn't set to a specific failure type above, it remains VERIFICATION_FAILED
             }
         } catch (Exception e) {
             log.error("Signature verification failed", e);
