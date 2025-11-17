@@ -53,6 +53,10 @@ public class Document {
     @JoinColumn(name = "uploaded_by", nullable = false)
     private User uploadedBy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "form_submission_id")
+    private FormSubmission formSubmission;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
