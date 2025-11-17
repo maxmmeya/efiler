@@ -33,11 +33,11 @@ export function Sidebar() {
   const hasAccess = (item: MenuItem): boolean => {
     if (!item.roles && !item.permissions) return true;
 
-    if (item.roles && item.roles.some(role => user?.roles.includes(role))) {
+    if (item.roles && item.roles.some(role => user?.roles?.includes(role))) {
       return true;
     }
 
-    if (item.permissions && item.permissions.some(perm => user?.permissions.includes(perm))) {
+    if (item.permissions && item.permissions.some(perm => user?.permissions?.includes(perm))) {
       return true;
     }
 
@@ -49,7 +49,7 @@ export function Sidebar() {
     const items: MenuItem[] = [];
 
     // External User Menu
-    if (user?.roles.includes('ROLE_EXTERNAL_USER') || user?.roles.includes('ROLE_EXTERNAL_INSTITUTIONAL')) {
+    if (user?.roles?.includes('ROLE_EXTERNAL_USER') || user?.roles?.includes('ROLE_EXTERNAL_INSTITUTIONAL')) {
       items.push(
         { name: 'Dashboard', href: '/portal/dashboard', icon: LayoutDashboard },
         { name: 'New Submission', href: '/portal/submit', icon: Upload },
@@ -59,7 +59,7 @@ export function Sidebar() {
     }
 
     // Back Office User Menu
-    if (user?.roles.includes('ROLE_BACK_OFFICE')) {
+    if (user?.roles?.includes('ROLE_BACK_OFFICE')) {
       items.push(
         { name: 'Dashboard', href: '/backoffice/dashboard', icon: LayoutDashboard },
         { name: 'Pending Approvals', href: '/backoffice/approvals', icon: CheckCircle },
@@ -70,7 +70,7 @@ export function Sidebar() {
     }
 
     // Administrator Menu
-    if (user?.roles.includes('ROLE_ADMINISTRATOR')) {
+    if (user?.roles?.includes('ROLE_ADMINISTRATOR')) {
       items.push(
         { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'User Management', href: '/admin/users', icon: UserCog },

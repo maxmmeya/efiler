@@ -12,9 +12,9 @@ export default function Home() {
       const user = authService.getUser();
 
       // Redirect based on user role
-      if (user?.roles.includes('ROLE_ADMINISTRATOR')) {
+      if (user?.roles?.includes('ROLE_ADMINISTRATOR')) {
         router.push('/admin/dashboard');
-      } else if (user?.roles.includes('ROLE_BACK_OFFICE')) {
+      } else if (user?.roles?.includes('ROLE_BACK_OFFICE')) {
         router.push('/backoffice/dashboard');
       } else {
         router.push('/portal/dashboard');
