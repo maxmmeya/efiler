@@ -81,9 +81,10 @@ public class DocumentShareService {
                 .isActive(true)
                 .build();
 
-        share = documentShareRepository.save(share);
+        DocumentShare savedShare = documentShareRepository.save(share);
 
         // Notify all users in the institution
+        final Long shareId = savedShare.getId();
         institution.getUsers().forEach(user -> {
             notificationService.sendNotification(
                     user,
@@ -92,11 +93,11 @@ public class DocumentShareService {
                     "A document has been shared with your institution: " + document.getDocumentNumber(),
                     Notification.NotificationChannel.IN_APP,
                     "DocumentShare",
-                    share.getId()
+                    shareId
             );
         });
 
-        return share;
+        return savedShare;
     }
 
     @Transactional
