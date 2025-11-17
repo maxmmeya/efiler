@@ -1,5 +1,6 @@
 package com.efiling.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,6 +36,7 @@ public class ApprovalWorkflow {
     @OneToMany(mappedBy = "workflow", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("stepOrder ASC")
     @Builder.Default
+    @JsonManagedReference
     private List<ApprovalStep> steps = new ArrayList<>();
 
     @Column(name = "is_active")

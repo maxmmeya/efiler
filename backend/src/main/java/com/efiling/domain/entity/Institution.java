@@ -1,5 +1,6 @@
 package com.efiling.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -49,6 +50,7 @@ public class Institution {
 
     @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
     @CreatedDate

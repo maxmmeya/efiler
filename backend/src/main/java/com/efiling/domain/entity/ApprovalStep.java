@@ -1,5 +1,7 @@
 package com.efiling.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +23,7 @@ public class ApprovalStep {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workflow_id", nullable = false)
+    @JsonBackReference
     private ApprovalWorkflow workflow;
 
     @Column(name = "step_name", nullable = false)
@@ -38,6 +41,7 @@ public class ApprovalStep {
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     @Builder.Default
+    @JsonIgnoreProperties({"permissions", "hibernateLazyInitializer", "handler"})
     private Set<Role> approverRoles = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -47,6 +51,7 @@ public class ApprovalStep {
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @Builder.Default
+    @JsonIgnoreProperties({"roles", "institution", "hibernateLazyInitializer", "handler"})
     private Set<User> approverUsers = new HashSet<>();
 
     @Column(name = "requires_all_approvers")
