@@ -58,6 +58,10 @@ public class DocumentService {
         return documentRepository.findByUploadedBy(user);
     }
 
+    public List<Document> getAllDocuments() {
+        return documentRepository.findAll();
+    }
+
     @Transactional
     public void deleteDocument(Long id, User user) throws Exception {
         Document document = getDocument(id);

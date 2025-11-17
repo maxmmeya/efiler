@@ -128,4 +128,29 @@ public class NotificationService {
     public List<Notification> getUnreadNotifications(User user) {
         return notificationRepository.findByUserAndIsRead(user, false);
     }
+
+    /**
+     * Send a simple email notification without creating a notification record
+     * Used for system emails like welcome messages, password resets, etc.
+     */
+    public void sendEmailNotification(String email, String subject, String body) {
+        if (!emailEnabled) {
+            log.info("Email notifications disabled");
+            return;
+        }
+
+        try {
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setFrom(emailFrom);
+            mailMessage.setTo(email);
+            mailMessage.setSubject(subject);
+            mailMessage.setText(body);
+
+            mailSender.send(mailMessage);
+            log.info("Email sent to {}", email);
+        } catch (Exception e) {
+            log.error("Failed to send email to {}", email, e);
+            throw new RuntimeException("Failed to send email", e);
+        }
+    }
 }

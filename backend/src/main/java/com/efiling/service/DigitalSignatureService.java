@@ -8,6 +8,7 @@ import com.efiling.repository.DigitalSignatureRepository;
 import com.efiling.repository.SignatureVerificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
 import org.springframework.beans.factory.annotation.Value;
@@ -87,7 +88,7 @@ public class DigitalSignatureService {
     }
 
     private String signPdf(File pdfFile, PrivateKey privateKey, Certificate[] certChain, User signer) throws Exception {
-        try (PDDocument doc = PDDocument.load(pdfFile)) {
+        try (PDDocument doc = Loader.loadPDF(pdfFile)) {
             // Create signature
             PDSignature signature = new PDSignature();
             signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE);
@@ -139,7 +140,7 @@ public class DigitalSignatureService {
         boolean trustChainValid = false;
         StringBuilder details = new StringBuilder();
 
-        try (PDDocument doc = PDDocument.load(signedFile)) {
+        try (PDDocument doc = Loader.loadPDF(signedFile)) {
             List<PDSignature> signatures = doc.getSignatureDictionaries();
 
             if (signatures.isEmpty()) {

@@ -52,4 +52,62 @@ public class ApprovalController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/{documentId}/approve")
+    public ResponseEntity<?> approveDocument(
+            @PathVariable Long documentId,
+            @RequestBody(required = false) Map<String, String> requestBody,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            String comments = requestBody != null ? requestBody.get("comments") : "Approved";
+
+            // Find the pending approval for this document
+            List<Approval> approvals = approvalService.getPendingApprovalsForUser(userPrincipal.getId());
+            Approval approval = approvals.stream()
+                    .filter(a -> a.getDocument().getId().equals(documentId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("No pending approval found for this document"));
+
+            approvalService.processApprovalAction(
+                    approval.getId(),
+                    userPrincipal.getId(),
+                    ApprovalAction.ActionType.APPROVE,
+                    comments,
+                    com.efiling.domain.entity.User.builder().id(userPrincipal.getId()).build()
+            );
+
+            return ResponseEntity.ok("Document approved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{documentId}/reject")
+    public ResponseEntity<?> rejectDocument(
+            @PathVariable Long documentId,
+            @RequestBody(required = false) Map<String, String> requestBody,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            String comments = requestBody != null ? requestBody.get("comments") : "Rejected";
+
+            // Find the pending approval for this document
+            List<Approval> approvals = approvalService.getPendingApprovalsForUser(userPrincipal.getId());
+            Approval approval = approvals.stream()
+                    .filter(a -> a.getDocument().getId().equals(documentId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("No pending approval found for this document"));
+
+            approvalService.processApprovalAction(
+                    approval.getId(),
+                    userPrincipal.getId(),
+                    ApprovalAction.ActionType.REJECT,
+                    comments,
+                    com.efiling.domain.entity.User.builder().id(userPrincipal.getId()).build()
+            );
+
+            return ResponseEntity.ok("Document rejected successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
