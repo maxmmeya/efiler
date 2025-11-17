@@ -1,5 +1,6 @@
 package com.efiling.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -45,9 +46,11 @@ public class FormSubmission {
 
     @OneToMany(mappedBy = "formSubmission", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<Document> attachedDocuments = new ArrayList<>();
 
     @OneToOne(mappedBy = "formSubmission", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Approval approval;
 
     @Column(name = "visible_to_institution")

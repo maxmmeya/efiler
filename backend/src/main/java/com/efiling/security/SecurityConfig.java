@@ -82,7 +82,13 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMINISTRATOR")
                         .requestMatchers("/users/**").hasRole("ADMINISTRATOR")
                         .requestMatchers("/roles/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers("/institutions/**").hasRole("ADMINISTRATOR")
                         .requestMatchers("/workflows/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers("/document-types/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET, "/forms").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.POST, "/forms").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.PUT, "/forms/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE, "/forms/**").hasRole("ADMINISTRATOR")
                         .requestMatchers("/forms/manage/**").hasRole("ADMINISTRATOR")
 
                         // All other requests need authentication
